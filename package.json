@@ -1,0 +1,23 @@
+{
+  "name": "geop",
+  "version": "1.0.0",
+  "description": "GEOPersonas",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alvaro Rodriguez",
+  "license": "ISC",
+  "dependencies": {
+    "activedirectory": "^0.7.2",
+    "async": "^2.4.1",
+    "body-parser": "^1.17.2",
+    "bunyan": "^1.8.10",
+    "express": "^4.15.3",
+    "ldapjs": "^1.0.1",
+    "moment": "^2.18.1",
+    "mongoose": "^4.10.4",
+    "underscore": "^1.8.3"
+  }
+}
