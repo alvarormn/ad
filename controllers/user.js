@@ -13,16 +13,16 @@ var ad = new ActiveDirectory(config);
 
 var approval = [];
 
+var id = 1;
+
+var route;
+
+
 
 
 function findUser(req, res){
-  console.log(req.body);
-  var sAMAccountName = req.body;
-  console.log(sAMAccountName);
-  var dn;
-  //var dn = 'CN=Smith\\, John,OU=Users,DC=domain,DC=com';
-  //var dn = boss;
 
+  var sAMAccountName = req.body.user;
 
   if (sAMAccountName) {
     ad.findUser(sAMAccountName, function(err, user) {
@@ -31,110 +31,64 @@ function findUser(req, res){
         return;
       }
 
-      if (! user) console.log('User: ' + sAMAccountName + ' not found.');
-      else console.log(JSON.stringify(user));
 
-      cadena(user);
+      if (!user) {
+        console.log('User: ' + sAMAccountName + ' not found.');
+      } else {
+        console.log(JSON.stringify(user));
+        //route = 'approval';
+        approval.push({
+          id: id,
+          title:user.sAMAccountName,
+          nodes:[]
+        });
 
+        findManager(res, user.manager);
+      }
     });
   }
+
+}
+
+function findManager(res, dn) {
+
+
   if (dn) {
     ad.findUser(dn, function(err, user) {
       if (err) {
-        console.log('ERROR: ' +JSON.stringify(err));
+        res.status(500).send({message: 'ERROR al guardar' + JSON.stringify(err)});
+      }
+      if (!user) {
+        res.status(404).send({message: 'El usuario no existe'})
+      }
+
+      id++;
+      route.nodes.push({
+        id: id,
+        title:user.sAMAccountName,
+        nodes:[]
+      });
+      route.concat(nodes)
+
+      console.log(user);
+      if (user.manager) {
+        if (user.sAMAccountName == 'jlopezp') {
+          console.log(approval);
+
+          res.status(200).send(approval);
+          return;
+        }
+        findManager(res, user.manager);
+      } else {
+        res.status(200).send('No hay responsable');
+        console.log('no hay responsable');
         return;
       }
 
-      if (! user) console.log('User: ' + dn + ' not found.');
-      else console.log(JSON.stringify(user));
-
-      cadena(user);
-
     });
+
   }
-
-
-  // Find user by a sAMAccountName
-
-
-
 }
-
-function cadena(user) {
-
-  if (!user.manager){
-    console.log("no hay jefe");
-  } else {
-    approval.push(user);
-    findUsers(user.manager);
-  }
-
-  console.log(approval);
-
-}
-
-
-
-/*function findUsers(req, res) {
-  var newUser = new User();
-  var query = 'cn=*';
-
-
-  ad.findUsers(query, function(err, users) {
-    if (err) {
-      console.log('ERROR: ' +JSON.stringify(err));
-      return;
-    }
-
-    if ((! users) || (users.length == 0)) console.log('No users found.');
-    else {
-      //var findUsers = JSON.stringify(users);
-      //console.log(findUsers);
-      //
-      //res.status(200).send('findUsers: '+JSON.stringify(users));
-
-      //console.log(users);
-
-      for (var i = 0; i < users.length; i++) {
-
-        var newUser = new User();
-
-        newUser.name = users[i].givenName;
-        newUser.surname = users[i].sn;
-        newUser.display = users[i].displayName;
-        newUser.email = users[i].mail;
-        newUser.user = users[i].sAMAccountName;
-        newUser.manager = users[i].manager;
-
-        //console.log(newUser);
-
-        newUser.save((err, userStored) => {
-          if (err) {
-            //res.status(500).send({message: 'ERROR al guardar' + err});
-            console.log('Error al guardar' + err);
-          }else{
-            if (!userStored) {
-              //res.status(404).send({message: 'No se ha registrado el usuario'});
-              console.log('No se ha registrado el usuario');
-            }else {
-              //res.status(200).send({user: userStored});
-              //console.log(userStored);
-              console.log("usuario " +userStored + " registrado");
-            }
-          }
-        });
-
-
-
-
-      }
-    }
-  });
-}*/
-
-
-
-
 
 module.exports = {
   findUser
